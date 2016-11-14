@@ -15,7 +15,10 @@ public abstract class JsonCallback<T> extends Callback<T> {
 
     @Override
     public T parseNetworkResponse(Response response, int id) throws IOException {
-        String json = response.body().string();
-        return JSONUtil.getObjectFromJson(json, clazz);
+        if(response != null && response.body() != null) {
+            String json = response.body().string();
+            return JSONUtil.getObjectFromJson(json, clazz);
+        }
+        return null;
     }
 }
