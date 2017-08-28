@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public abstract class FileCallBack extends Callback<File> {
     private String destFileDir;
@@ -28,37 +29,47 @@ public abstract class FileCallBack extends Callback<File> {
         byte[] buf = new byte[2048];
         int len;
         FileOutputStream fos = null;
+        ResponseBody responseBody = response.body();
         try {
-            is = response.body().byteStream();
-            final long total = response.body().contentLength();
-            long sum = 0;
-            File dir = new File(destFileDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
+            if (responseBody != null) {
+                is = responseBody.byteStream();
+                final long total = responseBody.contentLength();
+                long sum = 0;
+                File dir = new File(destFileDir);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                File file = new File(dir, destFileName);
+                fos = new FileOutputStream(file);
+                while ((len = is.read(buf)) != -1) {
+                    sum += len;
+                    fos.write(buf, 0, len);
+                    final long finalSum = sum;
+                    OkHttpUtils.getInstance().getDelivery().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            inProgress(finalSum * 1.0f / total, total, id);
+                        }
+                    });
+                }
+                fos.flush();
+                return file;
             }
-            File file = new File(dir, destFileName);
-            fos = new FileOutputStream(file);
-            while ((len = is.read(buf)) != -1) {
-                sum += len;
-                fos.write(buf, 0, len);
-                final long finalSum = sum;
-                OkHttpUtils.getInstance().getDelivery().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        inProgress(finalSum * 1.0f / total, total, id);
-                    }
-                });
-            }
-            fos.flush();
-            return file;
+            return null;
         } finally {
             try {
-                response.body().close();
-                if (is != null) is.close();
+                if (responseBody != null) {
+                    responseBody.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
             } catch (IOException e) {
             }
             try {
-                if (fos != null) fos.close();
+                if (fos != null) {
+                    fos.close();
+                }
             } catch (IOException e) {
             }
         }

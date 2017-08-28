@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public abstract class JsonCallback<T> extends Callback<T> {
     private Class<T> clazz;
@@ -22,11 +23,14 @@ public abstract class JsonCallback<T> extends Callback<T> {
     @Override
     public T parseNetworkResponse(Response response, int id) throws IOException {
         if (response != null && response.body() != null) {
-            String json = response.body().string();
-            if (clazz != null) {
-                return JSONUtil.getObjectFromJson(json, clazz);
-            } else if (type != null) {
-                return JSONUtil.getObjectFromJson(json, type);
+            ResponseBody responseBody = response.body();
+            if (responseBody != null) {
+                String json = responseBody.string();
+                if (clazz != null) {
+                    return JSONUtil.toObject(json, clazz);
+                } else if (type != null) {
+                    return JSONUtil.toObject(json, type);
+                }
             }
         }
         return null;

@@ -10,7 +10,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.Iterator;
 import java.util.List;
 
 import okhttp3.FormBody;
@@ -33,8 +32,7 @@ public class PostFormRequest extends OkHttpRequest {
         if (files == null || files.isEmpty()) {
             FormBody.Builder builder = new FormBody.Builder();
             addParams(builder);
-            FormBody formBody = builder.build();
-            return formBody;
+            return builder.build();
         } else {
             MultipartBody.Builder builder = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM);
@@ -52,7 +50,7 @@ public class PostFormRequest extends OkHttpRequest {
     @Override
     protected RequestBody wrapRequestBody(RequestBody requestBody, final Callback callback) {
         if (callback == null) return requestBody;
-        CountingRequestBody countingRequestBody = new CountingRequestBody(requestBody, new CountingRequestBody.Listener() {
+        return new CountingRequestBody(requestBody, new CountingRequestBody.Listener() {
             @Override
             public void onRequestProgress(final long bytesWritten, final long contentLength) {
 
@@ -64,7 +62,6 @@ public class PostFormRequest extends OkHttpRequest {
                 });
             }
         });
-        return countingRequestBody;
     }
 
     @Override
@@ -88,9 +85,7 @@ public class PostFormRequest extends OkHttpRequest {
 
     private void addParams(MultipartBody.Builder builder) {
         if (params != null && !params.isEmpty()) {
-            Iterator<RequestEntry> iterator = params.iterator();
-            while (iterator.hasNext()) {
-                RequestEntry requestEntry = iterator.next();
+            for (RequestEntry requestEntry : params) {
                 builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"" + requestEntry.getKey() + "\""),
                         RequestBody.create(null, requestEntry.getValue()));
             }
@@ -99,9 +94,7 @@ public class PostFormRequest extends OkHttpRequest {
 
     private void addParams(FormBody.Builder builder) {
         if (params != null) {
-            Iterator<RequestEntry> iterator = params.iterator();
-            while (iterator.hasNext()) {
-                RequestEntry requestEntry = iterator.next();
+            for (RequestEntry requestEntry : params) {
                 builder.add(requestEntry.getKey(), requestEntry.getValue());
             }
         }

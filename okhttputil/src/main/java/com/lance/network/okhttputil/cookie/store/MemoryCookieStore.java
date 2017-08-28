@@ -63,9 +63,6 @@ public class MemoryCookieStore implements CookieStore {
     @Override
     public boolean remove(HttpUrl uri, Cookie cookie) {
         List<Cookie> cookies = allCookies.get(uri.host());
-        if (cookie != null) {
-            return cookies.remove(cookie);
-        }
-        return false;
+        return cookie != null && cookies.remove(cookie);
     }
 }
