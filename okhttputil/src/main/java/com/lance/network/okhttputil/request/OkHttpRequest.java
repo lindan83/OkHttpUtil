@@ -4,7 +4,6 @@ import com.lance.network.okhttputil.builder.HeaderEntry;
 import com.lance.network.okhttputil.builder.RequestEntry;
 import com.lance.network.okhttputil.callback.Callback;
 
-import java.util.Iterator;
 import java.util.List;
 
 import okhttp3.Headers;
@@ -55,8 +54,7 @@ public abstract class OkHttpRequest {
     public Request generateRequest(Callback callback) {
         RequestBody requestBody = buildRequestBody();
         RequestBody wrappedRequestBody = wrapRequestBody(requestBody, callback);
-        Request request = buildRequest(wrappedRequestBody);
-        return request;
+        return buildRequest(wrappedRequestBody);
     }
 
 
@@ -64,9 +62,7 @@ public abstract class OkHttpRequest {
         Headers.Builder headerBuilder = new Headers.Builder();
         if (headers == null || headers.isEmpty()) return;
 
-        Iterator<HeaderEntry> iterator = headers.iterator();
-        while (iterator.hasNext()) {
-            HeaderEntry headerEntry = iterator.next();
+        for (HeaderEntry headerEntry : headers) {
             headerBuilder.add(headerEntry.getHeaderName(), headerEntry.getHeaderValue());
         }
         builder.headers(headerBuilder.build());

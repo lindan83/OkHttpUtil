@@ -67,7 +67,7 @@ public class PersistentCookieStore implements CookieStore {
                         Cookie decodedCookie = decodeCookie(encodedCookie);
                         if (decodedCookie != null) {
                             if (!cookies.containsKey(entry.getKey()))
-                                cookies.put(entry.getKey(), new ConcurrentHashMap<String, Cookie>());
+                                cookies.put(entry.getKey(), new ConcurrentHashMap<>());
                             cookies.get(entry.getKey()).put(name, decodedCookie);
                         }
                     }
@@ -82,7 +82,7 @@ public class PersistentCookieStore implements CookieStore {
 
         if (cookie.persistent()) {
             if (!cookies.containsKey(uri.host())) {
-                cookies.put(uri.host(), new ConcurrentHashMap<String, Cookie>());
+                cookies.put(uri.host(), new ConcurrentHashMap<>());
             }
             cookies.get(uri.host()).put(name, cookie);
         } else {

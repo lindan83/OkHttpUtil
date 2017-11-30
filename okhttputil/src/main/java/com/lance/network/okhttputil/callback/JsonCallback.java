@@ -24,9 +24,9 @@ public abstract class JsonCallback<T> extends Callback<T> {
         if (response != null && response.body() != null) {
             String json = response.body().string();
             if (clazz != null) {
-                return JSONUtil.getObjectFromJson(json, clazz);
+                return JSONUtil.toObject(json, clazz);
             } else if (type != null) {
-                return JSONUtil.getObjectFromJson(json, type);
+                return JSONUtil.toObject(json, type);
             }
         }
         return null;

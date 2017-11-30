@@ -117,8 +117,9 @@ public class OkHttpUtils {
                 } catch (Exception e) {
                     sendFailResultCallback(call, response, e, finalCallback, id);
                 } finally {
-                    if (response.body() != null)
+                    if (response.body() != null) {
                         response.body().close();
+                    }
                 }
             }
         });
@@ -127,23 +128,17 @@ public class OkHttpUtils {
     public void sendFailResultCallback(final Call call, final Response response, final Exception e, final Callback callback, final int id) {
         if (callback == null) return;
 
-        mPlatform.execute(new Runnable() {
-            @Override
-            public void run() {
-                callback.onError(call, response, e, id);
-                callback.onAfter(id);
-            }
+        mPlatform.execute(() -> {
+            callback.onError(call, response, e, id);
+            callback.onAfter(id);
         });
     }
 
     public void sendSuccessResultCallback(final Object object, final Callback callback, final int id) {
         if (callback == null) return;
-        mPlatform.execute(new Runnable() {
-            @Override
-            public void run() {
-                callback.onResponse(object, id);
-                callback.onAfter(id);
-            }
+        mPlatform.execute(() -> {
+            callback.onResponse(object, id);
+            callback.onAfter(id);
         });
     }
 

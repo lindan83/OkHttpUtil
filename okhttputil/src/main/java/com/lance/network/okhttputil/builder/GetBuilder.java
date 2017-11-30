@@ -6,7 +6,6 @@ import com.lance.network.okhttputil.request.GetRequest;
 import com.lance.network.okhttputil.request.RequestCall;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class GetBuilder extends OkHttpRequestBuilder<GetBuilder> implements HasParamsable {
@@ -24,9 +23,7 @@ public class GetBuilder extends OkHttpRequestBuilder<GetBuilder> implements HasP
             return url;
         }
         Uri.Builder builder = Uri.parse(url).buildUpon();
-        Iterator<RequestEntry> iterator = params.iterator();
-        while (iterator.hasNext()) {
-            RequestEntry requestEntry = iterator.next();
+        for (RequestEntry requestEntry : params) {
             String key = requestEntry.getKey();
             String value = requestEntry.getValue();
             builder.appendQueryParameter(key, value);

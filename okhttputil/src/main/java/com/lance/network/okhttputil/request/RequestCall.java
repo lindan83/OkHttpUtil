@@ -23,8 +23,6 @@ public class RequestCall {
     private long writeTimeOut;
     private long connTimeOut;
 
-    private OkHttpClient clone;
-
     public RequestCall(OkHttpRequest request) {
         this.okHttpRequest = request;
     }
@@ -52,7 +50,7 @@ public class RequestCall {
             writeTimeOut = writeTimeOut > 0 ? writeTimeOut : OkHttpUtils.DEFAULT_MILLISECONDS;
             connTimeOut = connTimeOut > 0 ? connTimeOut : OkHttpUtils.DEFAULT_MILLISECONDS;
 
-            clone = OkHttpUtils.getInstance().getOkHttpClient().newBuilder()
+            OkHttpClient clone = OkHttpUtils.getInstance().getOkHttpClient().newBuilder()
                     .readTimeout(readTimeOut, TimeUnit.MILLISECONDS)
                     .writeTimeout(writeTimeOut, TimeUnit.MILLISECONDS)
                     .connectTimeout(connTimeOut, TimeUnit.MILLISECONDS)

@@ -24,7 +24,7 @@ public class JSONUtil {
      * @param <T>     类型参数
      * @return 目标类型对象
      */
-    public static <T> T getObjectFromJson(String json, Class<T> toClass) {
+    public static <T> T toObject(String json, Class<T> toClass) {
         if (TextUtils.isEmpty(json) || toClass == null) {
             return null;
         }
@@ -43,7 +43,7 @@ public class JSONUtil {
      * @param <T>    类型参数
      * @return 目标类型对象
      */
-    public static <T> T getObjectFromJson(String json, Type toType) {
+    public static <T> T toObject(String json, Type toType) {
         if (TextUtils.isEmpty(json) || toType == null) {
             return null;
         }
@@ -60,7 +60,7 @@ public class JSONUtil {
      * @param object 任意对象
      * @return json String
      */
-    public static String getJsonFromObject(Object object) {
+    public static String toJSON(Object object) {
         if (object == null) {
             return null;
         }
