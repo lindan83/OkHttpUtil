@@ -1,5 +1,7 @@
 package com.lance.network.okhttputil;
 
+import android.support.annotation.NonNull;
+
 import com.lance.network.okhttputil.builder.GetBuilder;
 import com.lance.network.okhttputil.builder.HeadBuilder;
 import com.lance.network.okhttputil.builder.OtherRequestBuilder;
@@ -16,31 +18,32 @@ import java.util.concurrent.Executor;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class OkHttpUtils {
     public static final long DEFAULT_MILLISECONDS = 10_000L;
-    private volatile static OkHttpUtils mInstance;
-    private OkHttpClient mOkHttpClient;
-    private Platform mPlatform;
+    private volatile static OkHttpUtils instance;
+    private OkHttpClient okHttpClient;
+    private Platform platform;
 
-    public OkHttpUtils(OkHttpClient okHttpClient) {
+    private OkHttpUtils(OkHttpClient okHttpClient) {
         if (okHttpClient == null) {
-            mOkHttpClient = new OkHttpClient();
+            this.okHttpClient = new OkHttpClient();
         } else {
-            mOkHttpClient = okHttpClient;
+            this.okHttpClient = okHttpClient;
         }
-        mPlatform = Platform.get();
+        platform = Platform.get();
     }
 
     public static OkHttpUtils initClient(OkHttpClient okHttpClient) {
-        if (mInstance == null) {
+        if (instance == null) {
             synchronized (OkHttpUtils.class) {
-                if (mInstance == null) {
-                    mInstance = new OkHttpUtils(okHttpClient);
+                if (instance == null) {
+                    instance = new OkHttpUtils(okHttpClient);
                 }
             }
         }
-        return mInstance;
+        return instance;
     }
 
     public static OkHttpUtils getInstance() {
@@ -48,11 +51,11 @@ public class OkHttpUtils {
     }
 
     public Executor getDelivery() {
-        return mPlatform.defaultCallbackExecutor();
+        return platform.defaultCallbackExecutor();
     }
 
     public OkHttpClient getOkHttpClient() {
-        return mOkHttpClient;
+        return okHttpClient;
     }
 
     public static GetBuilder get() {
@@ -88,19 +91,21 @@ public class OkHttpUtils {
     }
 
     public void execute(final RequestCall requestCall, Callback callback) {
-        if (callback == null)
+        if (callback == null) {
             callback = Callback.CALLBACK_DEFAULT;
+        }
         final Callback finalCallback = callback;
         final int id = requestCall.getOkHttpRequest().getId();
 
         requestCall.getCall().enqueue(new okhttp3.Callback() {
             @Override
-            public void onFailure(Call call, final IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull final IOException e) {
                 sendFailResultCallback(call, null, e, finalCallback, id);
             }
 
             @Override
-            public void onResponse(final Call call, final Response response) {
+            public void onResponse(@NonNull final Call call, @NonNull final Response response) {
+                ResponseBody responseBody = response.body();
                 try {
                     if (call.isCanceled()) {
                         sendFailResultCallback(call, response, new IOException("Canceled!"), finalCallback, id);
@@ -117,8 +122,8 @@ public class OkHttpUtils {
                 } catch (Exception e) {
                     sendFailResultCallback(call, response, e, finalCallback, id);
                 } finally {
-                    if (response.body() != null) {
-                        response.body().close();
+                    if (responseBody != null) {
+                        responseBody.close();
                     }
                 }
             }
@@ -126,29 +131,33 @@ public class OkHttpUtils {
     }
 
     public void sendFailResultCallback(final Call call, final Response response, final Exception e, final Callback callback, final int id) {
-        if (callback == null) return;
-
-        mPlatform.execute(() -> {
+        if (callback == null) {
+            return;
+        }
+        platform.execute(() -> {
             callback.onError(call, response, e, id);
             callback.onAfter(id);
         });
     }
 
     public void sendSuccessResultCallback(final Object object, final Callback callback, final int id) {
-        if (callback == null) return;
-        mPlatform.execute(() -> {
+        if (callback == null) {
+            return;
+        }
+        platform.execute(() -> {
             callback.onResponse(object, id);
             callback.onAfter(id);
+
         });
     }
 
     public void cancelTag(Object tag) {
-        for (Call call : mOkHttpClient.dispatcher().queuedCalls()) {
+        for (Call call : okHttpClient.dispatcher().queuedCalls()) {
             if (tag.equals(call.request().tag())) {
                 call.cancel();
             }
         }
-        for (Call call : mOkHttpClient.dispatcher().runningCalls()) {
+        for (Call call : okHttpClient.dispatcher().runningCalls()) {
             if (tag.equals(call.request().tag())) {
                 call.cancel();
             }

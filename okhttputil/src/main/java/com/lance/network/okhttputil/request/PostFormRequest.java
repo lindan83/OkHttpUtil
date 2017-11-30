@@ -29,6 +29,7 @@ public class PostFormRequest extends OkHttpRequest {
 
     @Override
     protected RequestBody buildRequestBody() {
+        final List<PostFormBuilder.FileInput> files = this.files;
         if (files == null || files.isEmpty()) {
             FormBody.Builder builder = new FormBody.Builder();
             addParams(builder);
@@ -38,7 +39,7 @@ public class PostFormRequest extends OkHttpRequest {
                     .setType(MultipartBody.FORM);
             addParams(builder);
 
-            for (int i = 0; i < files.size(); i++) {
+            for (int i = 0, count = files.size(); i < count; i++) {
                 PostFormBuilder.FileInput fileInput = files.get(i);
                 RequestBody fileBody = RequestBody.create(MediaType.parse(guessMimeType(fileInput.filename)), fileInput.file);
                 builder.addFormDataPart(fileInput.key, fileInput.filename, fileBody);
@@ -49,7 +50,9 @@ public class PostFormRequest extends OkHttpRequest {
 
     @Override
     protected RequestBody wrapRequestBody(RequestBody requestBody, final Callback callback) {
-        if (callback == null) return requestBody;
+        if (callback == null) {
+            return requestBody;
+        }
         return new CountingRequestBody(requestBody, (bytesWritten, contentLength) -> OkHttpUtils.getInstance().getDelivery().execute(() -> callback.inProgress(bytesWritten * 1.0f / contentLength, contentLength, id)));
     }
 
@@ -73,6 +76,7 @@ public class PostFormRequest extends OkHttpRequest {
     }
 
     private void addParams(MultipartBody.Builder builder) {
+        final List<RequestEntry> params = this.params;
         if (params != null && !params.isEmpty()) {
             for (RequestEntry requestEntry : params) {
                 builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"" + requestEntry.getKey() + "\""),
@@ -82,6 +86,7 @@ public class PostFormRequest extends OkHttpRequest {
     }
 
     private void addParams(FormBody.Builder builder) {
+        final List<RequestEntry> params = this.params;
         if (params != null) {
             for (RequestEntry requestEntry : params) {
                 builder.add(requestEntry.getKey(), requestEntry.getValue());

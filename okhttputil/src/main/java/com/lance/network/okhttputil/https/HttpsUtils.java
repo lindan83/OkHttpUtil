@@ -42,7 +42,7 @@ public class HttpsUtils {
             sslParams.sSLSocketFactory = sslContext.getSocketFactory();
             sslParams.trustManager = trustManager;
             return sslParams;
-        } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
             throw new AssertionError(e);
         }
     }
@@ -89,11 +89,8 @@ public class HttpsUtils {
                 }
             }
             TrustManagerFactory trustManagerFactory;
-
-            trustManagerFactory = TrustManagerFactory.
-                    getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keyStore);
-
             return trustManagerFactory.getTrustManagers();
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,7 +110,6 @@ public class HttpsUtils {
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             keyManagerFactory.init(clientKeyStore, password.toCharArray());
             return keyManagerFactory.getKeyManagers();
-
         } catch (Exception e) {
             e.printStackTrace();
         }

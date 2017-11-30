@@ -6,5 +6,5 @@ Okhttp封装库
 ###
 
 ```
-compile 'com.lance.network:okhttputil:1.0.0'
+compile 'com.lance.network:okhttputil:0.0.1'
 ```

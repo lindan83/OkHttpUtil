@@ -1,5 +1,6 @@
 package com.lance.network.okhttputil.log;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -32,7 +33,7 @@ public class LoggerInterceptor implements Interceptor {
     }
 
     @Override
-    public Response intercept(Chain chain) throws IOException {
+    public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
         logForRequest(request);
         Response response = chain.proceed(request);
@@ -126,7 +127,10 @@ public class LoggerInterceptor implements Interceptor {
         try {
             final Request copy = request.newBuilder().build();
             final Buffer buffer = new Buffer();
-            copy.body().writeTo(buffer);
+            RequestBody requestBody = copy.body();
+            if(requestBody != null) {
+                requestBody.writeTo(buffer);
+            }
             return buffer.readUtf8();
         } catch (final IOException e) {
             return "something error when show requestBody.";

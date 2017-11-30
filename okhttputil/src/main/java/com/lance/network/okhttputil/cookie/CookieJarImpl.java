@@ -1,5 +1,7 @@
 package com.lance.network.okhttputil.cookie;
 
+import android.support.annotation.NonNull;
+
 import com.lance.network.okhttputil.cookie.store.CookieStore;
 
 import java.util.List;
@@ -19,12 +21,12 @@ public class CookieJarImpl implements CookieJar {
     }
 
     @Override
-    public synchronized void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+    public synchronized void saveFromResponse(@NonNull HttpUrl url, @NonNull List<Cookie> cookies) {
         cookieStore.add(url, cookies);
     }
 
     @Override
-    public synchronized List<Cookie> loadForRequest(HttpUrl url) {
+    public synchronized List<Cookie> loadForRequest(@NonNull HttpUrl url) {
         return cookieStore.get(url);
     }
 
